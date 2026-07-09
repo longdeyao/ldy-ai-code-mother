@@ -24,7 +24,7 @@ class AiCodeGeneratorFacadeTest {
 
     @Test
     void generateAndSaveCodeStream() {
-        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream("如何运营好视频，如何做出爆款视频（comfyui工作流）的网站", CodeGenTypeEnum.MULTI_FILE);
+        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream("如何运营好视频，如何做出爆款视频（comfyui工作流）的网站(里面需要有详细的做爆款视频的思路或者方法以及爆款视频的超链接（必须是真实存在的 以及是对于的爆款视频）可以点击去查看以及分析这个视频为什么会成为爆款)", CodeGenTypeEnum.MULTI_FILE);
         // 阻塞等待所有数据收集完成
         List<String> result = codeStream.collectList().block();
         // 验证结果
