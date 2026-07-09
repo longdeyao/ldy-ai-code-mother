@@ -1,6 +1,7 @@
 ### CUSTOM ###
 application-local.yaml
-
+# 屏蔽npm全局安装目录
+%APPDATA%/npm-global/
 tmp
 
 HELP.md
