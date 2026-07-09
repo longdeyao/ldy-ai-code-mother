@@ -3,6 +3,7 @@ package com.ldy.ldyaicodemother.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.ldy.ldyaicodemother.core.AiCodeGeneratorFacade;
 import com.ldy.ldyaicodemother.exception.BusinessException;
 import com.ldy.ldyaicodemother.exception.ErrorCode;
@@ -21,10 +22,12 @@ import com.ldy.ldyaicodemother.service.AppService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -144,7 +147,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
      * @return 生成结果流
      */
     @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> chatToGenCode(@RequestParam Long appId,
+    public Flux<ServerSentEvent<String>>  chatToGenCode(@RequestParam Long appId,
                                       @RequestParam String message,
                                       HttpServletRequest request) {
         // 参数校验
@@ -153,7 +156,16 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
         // 获取当前登录用户
         User loginUser = userService.getLoginUser(request);
         // 调用服务生成代码（流式）
-        return appService.chatToGenCode(appId, message, loginUser);
+        Flux<String> contentFlux = appService.chatToGenCode(appId, message, loginUser);
+        return contentFlux.map(chunk -> {
+            // 将内容包装成JSON对象
+            Map<String, Object> data = Map.of("v", chunk);
+            String jsonStr = JSONUtil.toJsonStr(data);
+            return ServerSentEvent.<String>builder().data(jsonStr).build();
+        }).concatWith(Mono.just(
+                // 发送结束事件
+                ServerSentEvent.<String>builder().event("done").data("").build()
+        ));
     }
 
 
