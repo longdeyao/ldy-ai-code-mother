@@ -6,6 +6,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import com.ldy.ldyaicodemother.ai.AiCodeGenTypeRoutingService;
 import com.ldy.ldyaicodemother.constant.AppConstant;
 import com.ldy.ldyaicodemother.core.AiCodeGeneratorFacade;
 import com.ldy.ldyaicodemother.core.builder.VueProjectBuilder;
@@ -13,6 +14,7 @@ import com.ldy.ldyaicodemother.core.handler.StreamHandlerExecutor;
 import com.ldy.ldyaicodemother.exception.BusinessException;
 import com.ldy.ldyaicodemother.exception.ErrorCode;
 import com.ldy.ldyaicodemother.exception.ThrowUtils;
+import com.ldy.ldyaicodemother.model.dto.app.AppAddRequest;
 import com.ldy.ldyaicodemother.model.dto.app.AppQueryRequest;
 import com.ldy.ldyaicodemother.model.entity.User;
 import com.ldy.ldyaicodemother.model.enums.ChatHistoryMessageTypeEnum;
@@ -71,6 +73,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
 
     @Resource
     private ScreenshotService screenshotService;
+
+    @Resource
+    private AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService;
 
 
     @Override
@@ -276,6 +281,28 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
         }
         // 删除应用
         return super.removeById(id);
+    }
+
+
+    @Override
+    public Long createApp(AppAddRequest appAddRequest, User loginUser) {
+        // 参数校验
+        String initPrompt = appAddRequest.getInitPrompt();
+        ThrowUtils.throwIf(StrUtil.isBlank(initPrompt), ErrorCode.PARAMS_ERROR, "初始化 prompt 不能为空");
+        // 构造入库对象
+        App app = new App();
+        BeanUtil.copyProperties(appAddRequest, app);
+        app.setUserId(loginUser.getId());
+        // 应用名称暂时为 initPrompt 前 12 位
+        app.setAppName(initPrompt.substring(0, Math.min(initPrompt.length(), 12)));
+        // 使用 AI 智能选择代码生成类型
+        CodeGenTypeEnum selectedCodeGenType = aiCodeGenTypeRoutingService.routeCodeGenType(initPrompt);
+        app.setCodeGenType(selectedCodeGenType.getValue());
+        // 插入数据库
+        boolean result = this.save(app);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        log.info("应用创建成功，ID: {}, 类型: {}", app.getId(), selectedCodeGenType.getValue());
+        return app.getId();
     }
 
 }

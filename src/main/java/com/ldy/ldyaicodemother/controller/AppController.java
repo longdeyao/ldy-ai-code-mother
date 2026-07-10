@@ -145,10 +145,8 @@ public class AppController {
         app.setAppName(initPrompt.substring(0, Math.min(initPrompt.length(), 12)));
         // 暂时设置为多文件生成
         app.setCodeGenType(CodeGenTypeEnum.VUE_PROJECT.getValue());
-        // 插入数据库
-        boolean result = appService.save(app);
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-        return ResultUtils.success(app.getId());
+        Long appId = appService.createApp(appAddRequest, loginUser);
+        return ResultUtils.success(appId);
     }
 
     /**

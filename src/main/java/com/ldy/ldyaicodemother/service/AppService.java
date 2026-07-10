@@ -1,5 +1,6 @@
 package com.ldy.ldyaicodemother.service;
 
+import com.ldy.ldyaicodemother.model.dto.app.AppAddRequest;
 import com.ldy.ldyaicodemother.model.dto.app.AppQueryRequest;
 import com.ldy.ldyaicodemother.model.entity.User;
 import com.ldy.ldyaicodemother.model.vo.AppVO;
@@ -31,4 +32,6 @@ public interface AppService extends IService<App> {
     String deployApp(Long appId, User loginUser);
 
     boolean removeById(Serializable id);
+
+    Long createApp(AppAddRequest appAddRequest, User loginUser);
 }
