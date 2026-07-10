@@ -1,6 +1,8 @@
 ### CUSTOM ###
 application-local.yaml
 # 屏蔽npm全局安装目录
+# npm缓存
+**/npm-cache/
 %APPDATA%/npm-global/
 tmp
 # npm全局缓存/安装目录
