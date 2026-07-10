@@ -1,4 +1,4 @@
-package com.ldy.ldyaicodemother.untils;
+package com.ldy.ldyaicodemother.utils;
 
 import com.ldy.ldyaicodemother.constant.AppConstant;
 import dev.langchain4j.agent.tool.P;
