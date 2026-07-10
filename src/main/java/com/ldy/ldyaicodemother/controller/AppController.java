@@ -396,7 +396,7 @@ public class AppController {
         Flux<String> contentFlux = appService.chatToGenCode(appId, message, loginUser);
         return contentFlux.map(chunk -> {
             // 将内容包装成JSON对象
-            Map<String, Object> data = Map.of("v", chunk);
+            Map<String, Object> data = Map.of("d", chunk);
             String jsonStr = JSONUtil.toJsonStr(data);
             return ServerSentEvent.<String>builder().data(jsonStr).build();
         }).concatWith(Mono.just(
