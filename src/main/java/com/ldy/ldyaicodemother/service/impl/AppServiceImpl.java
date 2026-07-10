@@ -234,6 +234,10 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
 
     @Override
     public Flux<String> chatToGenCode(Long appId, String message, User loginUser) {
+<<<<<<< HEAD
+=======
+        // ... 前面省略
+>>>>>>> 4d5906b3f2c911f76122317648ef22e9989f7fd8
         ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID不能为空");
         ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "消息内容不能为空");
         App app = appService.getById(appId);

@@ -36,9 +36,12 @@ public class AiCodeGeneratorFacade {
     private AiCodeGeneratorService aiCodeGeneratorService;
     @Resource
     private AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
+<<<<<<< HEAD
     @Resource
     private VueProjectBuilder vueProjectBuilder;
 
+=======
+>>>>>>> 4d5906b3f2c911f76122317648ef22e9989f7fd8
 
 
     /**
@@ -163,14 +166,18 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
+<<<<<<< HEAD
         AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId,codeGenTypeEnum);
+=======
+        AiCodeGeneratorService aiCodeGeneratorService1 = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId,codeGenTypeEnum);
+>>>>>>> 4d5906b3f2c911f76122317648ef22e9989f7fd8
         return switch (codeGenTypeEnum) {
             case HTML -> {
-                HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(userMessage);
+                HtmlCodeResult result = aiCodeGeneratorService1.generateHtmlCode(userMessage);
                 yield CodeFileSaverExecutor.executeSaver(result, CodeGenTypeEnum.HTML,appId);
             }
             case MULTI_FILE -> {
-                MultiFileCodeResult result = aiCodeGeneratorService.generateMultiFileCode(userMessage);
+                MultiFileCodeResult result = aiCodeGeneratorService1.generateMultiFileCode(userMessage);
                 yield CodeFileSaverExecutor.executeSaver(result, CodeGenTypeEnum.MULTI_FILE,appId);
             }
             default -> {
@@ -190,14 +197,22 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
+<<<<<<< HEAD
         AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId,codeGenTypeEnum);
+=======
+        AiCodeGeneratorService aiCodeGeneratorService1 = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId,codeGenTypeEnum);
+>>>>>>> 4d5906b3f2c911f76122317648ef22e9989f7fd8
         return switch (codeGenTypeEnum) {
             case HTML -> {
-                Flux<String> codeStream = aiCodeGeneratorService.generateHtmlCodeStream(userMessage);
+                Flux<String> codeStream = aiCodeGeneratorService1.generateHtmlCodeStream(userMessage);
                 yield processCodeStream(codeStream, CodeGenTypeEnum.HTML,appId);
             }
             case MULTI_FILE -> {
-                Flux<String> codeStream = aiCodeGeneratorService.generateMultiFileCodeStream(userMessage);
+                Flux<String> codeStream = aiCodeGeneratorService1.generateMultiFileCodeStream(userMessage);
+                yield processCodeStream(codeStream, CodeGenTypeEnum.MULTI_FILE,appId);
+            }
+            case VUE_PROJECT -> {
+                Flux<String> codeStream = aiCodeGeneratorService1.generateVueProjectCodeStream(appId,userMessage);
                 yield processCodeStream(codeStream, CodeGenTypeEnum.MULTI_FILE,appId);
             }
             case VUE_PROJECT -> {
@@ -212,7 +227,17 @@ public class AiCodeGeneratorFacade {
     }
 
 
+<<<<<<< HEAD
     private Flux<String> processTokenStream(TokenStream tokenStream, Long appId) {
+=======
+    /**
+     * 将 TokenStream 转换为 Flux<String>，并传递工具调用信息
+     *
+     * @param tokenStream TokenStream 对象
+     * @return Flux<String> 流式响应
+     */
+    private Flux<String> processTokenStream(TokenStream tokenStream) {
+>>>>>>> 4d5906b3f2c911f76122317648ef22e9989f7fd8
         return Flux.create(sink -> {
             tokenStream.onPartialResponse((String partialResponse) -> {
                         AiResponseMessage aiResponseMessage = new AiResponseMessage(partialResponse);
@@ -227,9 +252,12 @@ public class AiCodeGeneratorFacade {
                         sink.next(JSONUtil.toJsonStr(toolExecutedMessage));
                     })
                     .onCompleteResponse((ChatResponse response) -> {
+<<<<<<< HEAD
                         // 执行 Vue 项目构建（同步执行，确保预览时项目已就绪）
                         String projectPath = AppConstant.CODE_OUTPUT_ROOT_DIR + "/vue_project_" + appId;
                         vueProjectBuilder.buildProject(projectPath);
+=======
+>>>>>>> 4d5906b3f2c911f76122317648ef22e9989f7fd8
                         sink.complete();
                     })
                     .onError((Throwable error) -> {
