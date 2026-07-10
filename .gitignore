@@ -1,7 +1,13 @@
 ### CUSTOM ###
 application-local.yaml
-
+# npm缓存
+**/npm-cache/
+%APPDATA%/npm-global/
+node_modules/
 tmp
+/%APPDATA%/npm-cache/_cacache/*
+# npm全局缓存/安装目录
+%APPDATA%/npm-cache/
 
 HELP.md
 target/

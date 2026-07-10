@@ -1,0 +1,59 @@
+调用 AI 对话接口报错 404，http://localhost:5173/api/app/chat/gen/code
+我看了代码，发现 generateCode 你没有使用我生成的接口代码调用，请将这段逻辑改为 SSE 流式返回，并且后端地址是 http://localhost:8123/api。
+
+注意，禁止改动 api 目录下的代码，并且你必须只专注于当前问题的修复，尽量减少改动范围！
+
+后端接口代码如下：
+```java
+@GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+public Flux<ServerSentEvent<String>> chatToGenCode(@RequestParam Long appId,
+                                                   @RequestParam String message,
+                                                   HttpServletRequest request) {
+    // 参数校验
+    ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID无效");
+    ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "用户消息不能为空");
+    // 获取当前登录用户
+    User loginUser = userService.getLoginUser(request);
+    // 调用服务生成代码（流式）
+    Flux<String> contentFlux = appService.chatToGenCode(appId, message, loginUser);
+    // 转换为 ServerSentEvent 格式
+    return contentFlux
+            .map(chunk -> {
+                // 将内容包装成JSON对象
+                Map<String, String> wrapper = Map.of("d", chunk);
+                String jsonData = JSONUtil.toJsonStr(wrapper);
+                return ServerSentEvent.<String>builder()
+                        .data(jsonData)
+                        .build();
+            })
+            .concatWith(Mono.just(
+                    // 发送结束事件
+                    ServerSentEvent.<String>builder()
+                            .event("done")
+                            .data("")
+                            .build()
+            ));
+}
+
+
+
+优化网站的样式，并移除多余的功能，包括：
+
+1）主页增加充⁢⁢⁢满科技感的渐变色背景，宽度‏‏‏ 100%，主页其他元素样⁡⁡⁡式配合修改
+2）移除主页 ‌‌‌SLOGAN 位置的背景，‏‏‏SLOGAN 修改为：
+- 主标语：AI 应用生成平台
+- 副标语：一句话轻松创建网站应用
+3）优化主页输入框的展示效果，移除多余的⁢⁢⁢边框和 “优化” 按钮，输入框的提示语改为 “帮我创建个人博客网站”
+4）应用对‏‏‏话页面移除布局中多余的间距，让页面看起来更精简，左侧对话区域和右侧网站展示区域的⁡⁡⁡宽度比例为 2:3
+5）应用对话页面的输入框提示语改为 “请描述你想生成的网站，‌‌‌越详细效果越好哦”
+6）更换主页的 4 个快捷提示词示例，改为几个常见的网站生成‏‏‏需求，每个示例对应的提示词更具体一些，大概 100 字左右
+
+
+
+请检查整个⁢⁢⁢前端项目中的代‏码‏，‏将重复的内⁡容、⁡或者⁡适合独‌立编写‌的内容‌抽‏象为组件‏以复用，‏比如：
+- 应用卡片
+- 应用详情弹窗
+- 其他需要抽象的组件。。。
+
+并且移除没用到的多余代码
+

@@ -1,5 +1,6 @@
 package com.ldy.ldyaicodemother.service;
 
+import com.ldy.ldyaicodemother.model.dto.app.AppAddRequest;
 import com.ldy.ldyaicodemother.model.dto.app.AppQueryRequest;
 import com.ldy.ldyaicodemother.model.entity.User;
 import com.ldy.ldyaicodemother.model.vo.AppVO;
@@ -8,6 +9,7 @@ import com.mybatisflex.core.service.IService;
 import com.ldy.ldyaicodemother.model.entity.App;
 import reactor.core.publisher.Flux;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -23,5 +25,13 @@ public interface AppService extends IService<App> {
 
     List<AppVO> getAppVOList(List<App> appList);
 
+    void generateAppScreenshotAsync(Long appId, String appUrl);
+
     Flux<String> chatToGenCode(Long appId, String message, User loginUser);
+
+    String deployApp(Long appId, User loginUser);
+
+    boolean removeById(Serializable id);
+
+    Long createApp(AppAddRequest appAddRequest, User loginUser);
 }

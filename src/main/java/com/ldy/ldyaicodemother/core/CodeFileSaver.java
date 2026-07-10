@@ -5,15 +5,18 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.ldy.ldyaicodemother.ai.model.HtmlCodeResult;
 import com.ldy.ldyaicodemother.ai.model.MultiFileCodeResult;
+import com.ldy.ldyaicodemother.constant.AppConstant;
 import com.ldy.ldyaicodemother.model.enums.CodeGenTypeEnum;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-
+@Deprecated
 public class CodeFileSaver {
 
     // 文件保存根目录
-    private static final String FILE_SAVE_ROOT_DIR = System.getProperty("user.dir") + "/tmp/code_output";
+    protected static final String FILE_SAVE_ROOT_DIR = AppConstant.CODE_OUTPUT_ROOT_DIR;
+    // 应用生成根目录（用于浏览）
+    private static final String PREVIEW_ROOT_DIR = AppConstant.CODE_OUTPUT_ROOT_DIR;
 
     /**
      * 保存 HtmlCodeResult
