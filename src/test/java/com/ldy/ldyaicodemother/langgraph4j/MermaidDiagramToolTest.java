@@ -33,7 +33,7 @@ class MermaidDiagramToolTest {
         String description = "简单系统架构图";
         List<ImageResource> diagrams = mermaidDiagramTool.generateMermaidDiagram(mermaidCode, description);
         assertNotNull(diagrams);
-        // 如果有结果，验证图表资源
+        assertFalse(diagrams.isEmpty(), "Mermaid 架构图生成失败，请确认已安装 mmdc 且 Chrome 可用");
         ImageResource firstDiagram = diagrams.get(0);
         assertEquals(ImageCategoryEnum.ARCHITECTURE, firstDiagram.getCategory());
         assertEquals(description, firstDiagram.getDescription());
