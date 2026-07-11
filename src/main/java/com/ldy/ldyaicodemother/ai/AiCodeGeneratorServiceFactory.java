@@ -2,11 +2,11 @@ package com.ldy.ldyaicodemother.ai;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.ldy.ldyaicodemother.ai.utils.*;
 import com.ldy.ldyaicodemother.exception.BusinessException;
 import com.ldy.ldyaicodemother.exception.ErrorCode;
 import com.ldy.ldyaicodemother.model.enums.CodeGenTypeEnum;
 import com.ldy.ldyaicodemother.service.ChatHistoryService;
-import com.ldy.ldyaicodemother.ai.utils.FileWriteTool;
 import dev.langchain4j.community.store.memory.chat.redis.RedisChatMemoryStore;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
@@ -38,6 +38,8 @@ public class AiCodeGeneratorServiceFactory {
 
     @Resource
     private ChatHistoryService chatHistoryService;
+    @Resource
+    private ToolManager toolManager;
 
 
     @Bean
@@ -165,7 +167,7 @@ public class AiCodeGeneratorServiceFactory {
             case VUE_PROJECT -> AiServices.builder(AiCodeGeneratorService.class)
                     .streamingChatModel(reasoningStreamingChatModel)
                     .chatMemoryProvider(memoryId -> chatMemory)
-                    .tools(new FileWriteTool())
+                    .tools(toolManager.getAllTools())
                     .hallucinatedToolNameStrategy(toolExecutionRequest -> ToolExecutionResultMessage.from(
                             toolExecutionRequest, "Error: there is no tool called " + toolExecutionRequest.name()
                     ))
