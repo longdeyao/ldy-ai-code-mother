@@ -1,5 +1,6 @@
 package com.ldy.ldyaicodemother.langgraph4j.state;
 
+import com.ldy.ldyaicodemother.langgraph4j.model.QualityResult;
 import com.ldy.ldyaicodemother.langgraph4j.resource.ImageResource;
 import com.ldy.ldyaicodemother.model.enums.CodeGenTypeEnum;
 import lombok.AllArgsConstructor;
@@ -66,6 +67,10 @@ public class WorkflowContext implements Serializable {
      * 构建成功的目录
      */
     private String buildResultDir;
+    /**
+     * 质量检查结果
+     */
+    private QualityResult qualityResult;
 
     /**
      * 错误信息
