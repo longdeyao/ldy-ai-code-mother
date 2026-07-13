@@ -7,6 +7,7 @@ import com.ldy.ldyaicodemother.exception.BusinessException;
 import com.ldy.ldyaicodemother.exception.ErrorCode;
 import com.ldy.ldyaicodemother.model.enums.CodeGenTypeEnum;
 import com.ldy.ldyaicodemother.service.ChatHistoryService;
+import com.ldy.ldyaicodemother.utils.SpringContextInjector;
 import com.ldy.ldyaicodemother.utils.SpringContextUtil;
 import dev.langchain4j.community.store.memory.chat.redis.RedisChatMemoryStore;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
@@ -23,7 +24,7 @@ import java.time.Duration;
 
 @Configuration
 @Slf4j
-public class AiCodeGeneratorServiceFactory {
+public class AiCodeGeneratorServiceFactory implements SpringContextInjector {
     @Resource(name = "openAiChatModel")
     private ChatModel chatModel;
 

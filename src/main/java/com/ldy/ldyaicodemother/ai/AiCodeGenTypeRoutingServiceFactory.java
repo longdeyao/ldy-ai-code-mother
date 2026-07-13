@@ -1,5 +1,6 @@
 package com.ldy.ldyaicodemother.ai;
 
+import com.ldy.ldyaicodemother.utils.SpringContextInjector;
 import com.ldy.ldyaicodemother.utils.SpringContextUtil;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.service.AiServices;
@@ -9,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Slf4j
 @Configuration
-public class AiCodeGenTypeRoutingServiceFactory {
+public class AiCodeGenTypeRoutingServiceFactory implements SpringContextInjector {
 
     /**
      * 创建AI代码生成类型路由服务实例
