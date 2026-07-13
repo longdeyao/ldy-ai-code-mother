@@ -7,6 +7,8 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.ldy.ldyaicodemother.ai.AiCodeGenTypeRoutingService;
+import com.ldy.ldyaicodemother.ai.AiCodeGenTypeRoutingServiceFactory;
+import com.ldy.ldyaicodemother.ai.AiCodeGeneratorServiceFactory;
 import com.ldy.ldyaicodemother.constant.AppConstant;
 import com.ldy.ldyaicodemother.core.AiCodeGeneratorFacade;
 import com.ldy.ldyaicodemother.core.builder.VueProjectBuilder;
@@ -75,7 +77,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
     private ScreenshotService screenshotService;
 
     @Resource
-    private AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService;
+    private AiCodeGenTypeRoutingServiceFactory aiCodeGenTypeRoutingServiceFactory;
 
 
     @Override
@@ -295,6 +297,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App>  implements AppS
         // 应用名称暂时为 initPrompt 前 12 位
         app.setAppName(initPrompt.substring(0, Math.min(initPrompt.length(), 12)));
         // 使用 AI 智能选择代码生成类型
+        AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService = aiCodeGenTypeRoutingServiceFactory.createAiCodeGenTypeRoutingService();
         CodeGenTypeEnum selectedCodeGenType = aiCodeGenTypeRoutingService.routeCodeGenType(initPrompt);
         app.setCodeGenType(selectedCodeGenType.getValue());
         // 插入数据库
