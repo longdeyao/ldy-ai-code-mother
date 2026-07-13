@@ -2,6 +2,8 @@ package com.ldy.ldyaicodemother.ai;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.ldy.ldyaicodemother.ai.guardrail.PromptSafetyInputGuardrail;
+import com.ldy.ldyaicodemother.ai.guardrail.RetryOutputGuardrail;
 import com.ldy.ldyaicodemother.ai.utils.*;
 import com.ldy.ldyaicodemother.exception.BusinessException;
 import com.ldy.ldyaicodemother.exception.ErrorCode;
@@ -11,6 +13,7 @@ import com.ldy.ldyaicodemother.utils.SpringContextInjector;
 import com.ldy.ldyaicodemother.utils.SpringContextUtil;
 import dev.langchain4j.community.store.memory.chat.redis.RedisChatMemoryStore;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
+import dev.langchain4j.guardrail.config.OutputGuardrailsConfig;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
@@ -170,15 +173,25 @@ public class AiCodeGeneratorServiceFactory implements SpringContextInjector {
                         .hallucinatedToolNameStrategy(toolExecutionRequest -> ToolExecutionResultMessage.from(
                                 toolExecutionRequest, "Error: there is no tool called " + toolExecutionRequest.name()
                         ))
+                        .inputGuardrails(new PromptSafetyInputGuardrail())
+                        /*.outputGuardrails(new RetryOutputGuardrail())*/
                         .build();
             }
             case HTML, MULTI_FILE -> {
                 // 使用多例模式的 StreamingChatModel 解决并发问题
                 StreamingChatModel openAiStreamingChatModel = SpringContextUtil.getBean("streamingChatModelPrototype", StreamingChatModel.class);
+                OutputGuardrailsConfig outputGuardrailsConfig = OutputGuardrailsConfig.builder()
+                        .maxRetries(3)
+                        .build();
+
                 yield AiServices.builder(AiCodeGeneratorService.class)
                         .chatModel(chatModel)
                         .streamingChatModel(openAiStreamingChatModel)
                         .chatMemory(chatMemory)
+                        .inputGuardrails(new PromptSafetyInputGuardrail())
+                        /*.outputGuardrails(new RetryOutputGuardrail())
+                        .outputGuardrailsConfig(outputGuardrailsConfig)*/
+                        .maxSequentialToolsInvocations(20)//最大调用次数
                         .build();
             }
             default -> throw new BusinessException(ErrorCode.SYSTEM_ERROR,
