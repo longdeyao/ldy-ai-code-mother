@@ -16,6 +16,8 @@ import com.ldy.ldyaicodemother.model.dto.app.*;
 import com.ldy.ldyaicodemother.model.entity.User;
 import com.ldy.ldyaicodemother.model.enums.CodeGenTypeEnum;
 import com.ldy.ldyaicodemother.model.vo.AppVO;
+import com.ldy.ldyaicodemother.ratelimit.annotation.RateLimit;
+import com.ldy.ldyaicodemother.ratelimit.enums.RateLimitType;
 import com.ldy.ldyaicodemother.service.ProjectDownloadService;
 import com.ldy.ldyaicodemother.service.UserService;
 import com.mybatisflex.core.paginate.Page;
@@ -35,6 +37,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -390,6 +393,7 @@ public class AppController {
      * @return 生成结果流
      */
     @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RateLimit(limitType = RateLimitType.USER, rate = 5, rateInterval = 60, message = "AI 对话请求过于频繁，请稍后再试")
     public Flux<ServerSentEvent<String>>  chatToGenCode(@RequestParam Long appId,
                                       @RequestParam String message,
                                       HttpServletRequest request) {
@@ -446,5 +450,40 @@ public class AppController {
         // 7. 调用通用下载服务
         projectDownloadService.downloadProjectAsZip(sourceDirPath, downloadFileName, response);
     }
+
+    @GetMapping("/build/status/{appId}")
+    public BaseResponse<Map<String, Object>> getBuildStatus(@PathVariable Long appId, HttpServletRequest request) {
+        // 参数校验和权限检查
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID无效");
+        User loginUser = userService.getLoginUser(request);
+        App app = appService.getById(appId);
+        ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR, "应用不存在");
+
+        if (!app.getUserId().equals(loginUser.getId()) && !UserConstant.ADMIN_ROLE.equals(loginUser.getUserRole())) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "无权限查询构建状态");
+        }
+        // 检查构建状态
+        String projectPath = AppConstant.CODE_OUTPUT_ROOT_DIR + File.separator + "vue_project_" + appId;
+        File projectDir = new File(projectPath);
+        File distDir = new File(projectDir, "dist");
+        Map<String, Object> buildStatus = new HashMap<>();
+        buildStatus.put("appId", appId);
+        buildStatus.put("projectExists", projectDir.exists());
+        buildStatus.put("distExists", distDir.exists());
+        buildStatus.put("isBuilding", false); // 同步构建模式下总是false
+        if (distDir.exists()) {
+            buildStatus.put("status", "completed");
+            buildStatus.put("message", "构建已完成");
+            buildStatus.put("buildTime", distDir.lastModified());
+        } else if (projectDir.exists()) {
+            buildStatus.put("status", "pending");
+            buildStatus.put("message", "项目已生成，等待构建");
+        } else {
+            buildStatus.put("status", "not_found");
+            buildStatus.put("message", "项目不存在");
+        }
+        return ResultUtils.success(buildStatus);
+    }
+
 
 }
