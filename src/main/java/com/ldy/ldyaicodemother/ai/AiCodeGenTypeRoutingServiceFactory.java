@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Slf4j
 @Configuration
-public class AiCodeGenTypeRoutingServiceFactory implements SpringContextInjector {
+public class AiCodeGenTypeRoutingServiceFactory{
 
     /**
      * 创建AI代码生成类型路由服务实例
